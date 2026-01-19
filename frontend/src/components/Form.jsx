@@ -1,20 +1,73 @@
-import React from 'react'
+import React, { useState } from "react";
 
 const Form = () => {
+    const [formData, setFormData] = useState({
+        author: "",
+        entry_date: "",
+        mood: "",
+        energy: "",
+        content: "",
+        tags: ""
+    });
+    const handleChange = (e) => {
+        setFormData(prev => ({
+            ...prev,
+            [e.target.name]: e.target.value
+        }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const payload = {
+            ...formData,
+            energy: formData.energy ? Number(formData.energy) : null,
+            tags: formData.tags
+                ? formData.tags.split(",").map(tag => tag.trim())
+                : null
+        };
+        try {
+            console.log("Payload:", payload);
+            const res = await fetch("http://127.0.0.1:8000/diary/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                console.error("Error:", data);
+                alert("Failed to save entry");
+            } else {
+                console.log("Saved:", data);
+                alert("Diary entry saved!");
+            }
+        } catch (err) {
+            console.error("Network error:", err);
+        }
+    };
     return (
         <div className='flex flex-col justify-center items-center w-full'>
-            {/* <h1 className='text-white text-3xl sm:text-5xl text-center pt-5'>Ok, I am listening.....</h1> */}
-            <form class="sm:w-[50%] w-[90%] bg-gray-900 text-gray-100 p-6 rounded-lg my-5">
+
+            <form
+                onSubmit={handleSubmit}
+                className="sm:w-[50%] w-[90%] bg-gray-900 text-gray-100 p-6 rounded-lg my-5">
+                <h1 className='text-white text-3xl sm:text-5xl text-center pt-5'>Ok, I am listening.....</h1>
                 {/* <!-- Date --> */}
                 <div>
-                    <label for="entry-date" class="block text-sm font-medium mb-1 ">
+                    <label htmlFor="entry-date" className="block text-sm font-medium mb-1 ">
                         Date
                     </label>
                     <input
                         type="date"
                         id="entry-date"
-                        name="date"
-                        class="mt-1 block  bg-gray-800 border border-gray-700 rounded-md
+                        name="entry_date"
+                        value={formData.entry_date}
+                        onChange={handleChange}
+                        className="mt-1 block  bg-gray-800 border border-gray-700 rounded-md
              px-3 py-2 text-sm text-gray-100
              focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-[90%] sm:w-full"
                     />
@@ -22,32 +75,37 @@ const Form = () => {
 
                 {/* Name */}
                 <div>
-                    <label for="mood" class="block text-sm font-medium mb-1">
+                    <label for="mood" className="block text-sm font-medium mb-1">
                         Who are you???
                     </label>
                     <select
-                        id="name"
-                        name="name"
-                        class="mt-1 block w-full bg-gray-800 border border-gray-700 rounded-md
+                        id="author"
+                        name="author"
+                        value={formData.author}
+                        onChange={handleChange}
+                        className="mt-1 block w-full bg-gray-800 border border-gray-700 rounded-md
              px-3 py-2 text-sm text-gray-100
              focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     >
                         <option value="">Select your name</option>
-                        <option value="very_happy">Neha</option>
-                        <option value="happy">Vipin</option>
+                        <option value="Neha">Neha</option>
+                        <option value="Vipin">Vipin</option>
 
                     </select>
                 </div>
 
                 {/* <!-- Mood --> */}
                 <div>
-                    <label for="mood" class="block text-sm font-medium mb-1">
+                    <label
+                        for="mood" className="block text-sm font-medium mb-1">
                         Mood
                     </label>
                     <select
                         id="mood"
                         name="mood"
-                        class="mt-1 block w-full bg-gray-800 border border-gray-700 rounded-md
+                        value={formData.mood}
+                        onChange={handleChange}
+                        className="mt-1 block w-full bg-gray-800 border border-gray-700 rounded-md
              px-3 py-2 text-sm text-gray-100
              focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     >
@@ -62,36 +120,42 @@ const Form = () => {
 
                 {/* <!-- Energy --> */}
                 <div>
-                    <label for="mood" class="block text-sm font-medium mb-1">
+                    <label for="mood"
+
+                        className="block text-sm font-medium mb-1">
                         Energy
                     </label>
                     <select
                         id="energy"
                         name="energy"
-                        class="mt-1 block w-full bg-gray-800 border border-gray-700 rounded-md
+                        value={formData.energy}
+                        onChange={handleChange}
+                        className="mt-1 block w-full bg-gray-800 border border-gray-700 rounded-md
              px-3 py-2 text-sm text-gray-100
              focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     >
                         <option value="">Select your energy</option>
-                        <option value="very_happy">1/5</option>
-                        <option value="happy">2/5</option>
-                        <option value="neutral">3/5</option>
-                        <option value="sad">4/5</option>
-                        <option value="very_sad">5/5</option>
+                        <option value="1">1/5</option>
+                        <option value="2">2/5</option>
+                        <option value="3">3/5</option>
+                        <option value="4">4/5</option>
+                        <option value="5">5/5</option>
                     </select>
                 </div>
 
                 {/* <!-- Diary entry --> */}
                 <div>
-                    <label for="entry" class="block text-sm font-medium mb-1">
+                    <label for="entry" className="block text-sm font-medium mb-1">
                         Diary entry
                     </label>
                     <textarea
-                        id="entry"
-                        name="entry"
+                        id="content"
+                        name="content"
+                        value={formData.content}
+                        onChange={handleChange}
                         rows="6"
                         placeholder="Write about your day..."
-                        class="mt-1 block w-full bg-gray-800 border border-gray-700 rounded-md
+                        className="mt-1 block w-full bg-gray-800 border border-gray-700 rounded-md
              px-3 py-2 text-sm text-gray-100
              placeholder-gray-500
              focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -100,26 +164,28 @@ const Form = () => {
 
                 {/* <!-- Optional: Tags --> */}
                 <div>
-                    <label for="tags" class="block text-sm font-medium mb-1">
+                    <label for="tags" className="block text-sm font-medium mb-1">
                         Tags (optional)
                     </label>
                     <input
                         type="text"
                         id="tags"
                         name="tags"
+                        value={formData.tags}
+                        onChange={handleChange}
                         placeholder="e.g. work, family, goals"
-                        class="mt-1 block w-full bg-gray-800 border border-gray-700 rounded-md
-             px-3 py-2 text-sm text-gray-100
-             placeholder-gray-500
-             focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="mt-1 block w-full bg-gray-800 border border-gray-700 rounded-md
+  px-3 py-2 text-sm text-gray-100
+  placeholder-gray-500
+  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                 </div>
 
                 {/* <!-- Submit --> */}
-                <div class="pt-2">
+                <div className="pt-2">
                     <button
                         type="submit"
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium
+                        className="inline-flex items-center px-4 py-2 text-sm font-medium
              rounded-md bg-indigo-600 text-white
              hover:bg-indigo-500 focus:outline-none focus:ring-2
              focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900
