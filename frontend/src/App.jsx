@@ -1,15 +1,20 @@
 import React from 'react'
-import Navbar from './assets/components/Navbar'
+import { Routes, Route } from "react-router-dom";
 import Form from './components/Form'
 import Notes from './components/Notes'
 import BackToTopButton from './components/BackToTopButton'
+import Home from './pages/home'
+import Navbar from './components/Navbar';
 
 const App = () => {
   return (
     <>
-      <Navbar />
-      <Form />
-      <Notes />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/form" element={<Form />} />
+        <Route path="/notes" element={<Notes />} />
+        {/* You can add more later: /menu, /contact, etc. */}
+      </Routes>
       <BackToTopButton />
     </>
   )

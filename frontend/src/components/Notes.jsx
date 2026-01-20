@@ -1,72 +1,125 @@
-import React from 'react'
+import React, { useEffect, useState } from "react";
+import { supabase } from "../supabaseClient";
+import NoteCard from "./NoteCard";
+import Navbar from "./Navbar";
 
 const Notes = () => {
+    const [notes, setNotes] = useState([]);
+
+    useEffect(() => {
+        fetchNotes();
+    }, []);
+
+    const fetchNotes = async () => {
+        let query = supabase
+            .from("diary_entries")
+            .select("*")
+            .order("created_at", { ascending: false });
+
+        if (filters.author) {
+            query = query.eq("author", filters.author);
+        }
+
+        if (filters.mood) {
+            query = query.eq("mood", filters.mood);
+        }
+
+        if (filters.date) {
+            query = query.eq("entry_date", filters.date);
+        }
+
+        const { data, error } = await query;
+
+        if (!error) setNotes(data);
+    };
+
+    const deleteNote = async (id) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this note?");
+        if (!confirmDelete) return;
+
+        const { error } = await supabase
+            .from("diary_entries")
+            .delete()
+            .eq("id", id);
+
+        if (!error) {
+            setNotes(prev => prev.filter(note => note.id !== id));
+        } else {
+            console.error("Delete failed:", error);
+        }
+    };
+
+    const [filters, setFilters] = useState({
+        mood: "",
+        author: "",
+        date: ""
+    });
+
+    useEffect(() => {
+        fetchNotes();
+    }, [filters]);
+
+
     return (
-        <div>
-            <div class="bg-gray-900 min-h-screen text-gray-100">
-                <div class="max-w-4xl mx-auto px-4 py-8 space-y-4">
+        <>
+            <Navbar />
+            <div className="bg-gray-900 min-h-screen text-gray-100">
+                <div className="max-w-4xl mx-auto px-4 py-8 space-y-4">
+                    <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 mb-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
 
-                    {/* <!-- One note card --> */}
-                    <article class="bg-gray-800 border border-gray-700 rounded-lg p-4 sm:p-5 shadow-sm">
+                            {/* Author Filter */}
+                            <select
+                                value={filters.author}
+                                onChange={(e) => setFilters(prev => ({ ...prev, author: e.target.value }))}
+                                className="bg-gray-700 text-gray-100 px-3 py-2 rounded text-sm"
+                            >
+                                <option value="">All Authors</option>
+                                <option value="Vipin">Vipin</option>
+                                <option value="Neha">Neha</option>
+                            </select>
 
-                        {/* name */}
-                        <span class="inline-flex items-center px-2 py-0.5 mb-3 rounded-full text-l font-medium
-                     bg-gray-700 text-gray-200">
-                            VIPIN
-                        </span>
+                            {/* Mood Filter */}
+                            <select
+                                value={filters.mood}
+                                onChange={(e) => setFilters(prev => ({ ...prev, mood: e.target.value }))}
+                                className="bg-gray-700 text-gray-100 px-3 py-2 rounded text-sm"
+                            >
+                                <option value="">All Moods</option>
+                                <option value="very_happy">Very Happy</option>
+                                <option value="happy">Happy</option>
+                                <option value="neutral">Neutral</option>
+                                <option value="sad">Sad</option>
+                                <option value="very_sad">Very Sad</option>
+                            </select>
 
-                        {/* <!-- Top row: date + mood + optional energy --> */}
-                        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
-                            <div>
-                                <p class="text-xs uppercase tracking-wide text-gray-400">
-                                    Date
-                                </p>
-                                <p class="text-sm font-medium">
-                                    09-February-2026
-                                </p>
-                            </div>
+                            {/* Date Filter */}
+                            <input
+                                type="date"
+                                value={filters.date}
+                                onChange={(e) => setFilters(prev => ({ ...prev, date: e.target.value }))}
+                                className="bg-gray-700 text-gray-100 px-3 py-2 rounded text-sm"
+                            />
 
-                            <div class="flex items-center gap-2">
-                                {/* <!-- Mood badge --> */}
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                       bg-indigo-500/20 text-indigo-300">
-                                    Mood: Happy
-                                </span>
+                            {/* Clear */}
+                            <button
+                                onClick={() => setFilters({ mood: "", author: "", date: "" })}
+                                className="bg-gray-600 hover:bg-gray-500 text-white text-sm rounded px-3 py-2"
+                            >
+                                Clear
+                            </button>
 
-                                {/* <!-- Optional: Energy badge --> */}
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                       bg-emerald-500/20 text-emerald-300">
-                                    Energy: 4/5
-                                </span>
-                            </div>
                         </div>
+                    </div>
 
-                        {/* <!-- Optional tags --> */}
-                        {/* <div class="mb-3 flex flex-wrap gap-2">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
-                     bg-gray-700 text-gray-200">
-                                work
-                            </span>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
-                     bg-gray-700 text-gray-200">
-                                goals
-                            </span>
-                        </div> */}
-
-                        {/* <!-- Diary text --> */}
-                        <div class="prose prose-invert max-w-none text-sm leading-relaxed">
-                            <p>
-                                Today was a productive day. Finished my React component, did a solid gym session,
-                                and spent some time reading the Bhagavad Gita. Feeling focused and grateful.
-                            </p>
-                        </div>
-                    </article>
-
+                    {notes.map(note => (
+                        <NoteCard key={note.id} note={note} onDelete={deleteNote} />
+                    ))}
                 </div>
+
             </div>
+        </>
+    );
+};
 
-        </div>
-    )
-}
-
-export default Notes
+export default Notes;
