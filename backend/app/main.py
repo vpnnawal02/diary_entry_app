@@ -3,6 +3,7 @@ from sqlalchemy import text
 from app.core.database import engine
 from app.routes.diary import router as diary_router
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 
 app  = FastAPI(
     title= "Private Diary API",
@@ -20,9 +21,7 @@ app.add_middleware(
 
 @app.get("/")
 def home():
-    return{
-        "msg" : "home page"
-        }
+    return RedirectResponse(url="https://neha-vipin-world.netlify.app/")
 
 @app.get("/health")
 def health_check():
