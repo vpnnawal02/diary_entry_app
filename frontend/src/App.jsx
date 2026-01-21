@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import Form from './components/Form'
 import Notes from './components/Notes'
 import BackToTopButton from './components/BackToTopButton'
-import Home from './pages/home'
+import Home from './pages/Home'
 
 const App = () => {
   return (
