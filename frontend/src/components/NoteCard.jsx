@@ -38,7 +38,7 @@ const NoteCard = ({ note, onDelete }) => {
                     {/* Energy */}
                     {note.energy && (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-300">
-                            Energy: {note.energy}/10
+                            Energy: {note.energy}/5
                         </span>
                     )}
                 </div>
