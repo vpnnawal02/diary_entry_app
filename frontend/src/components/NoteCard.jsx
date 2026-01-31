@@ -4,14 +4,14 @@ const NoteCard = ({ note, onDelete }) => {
     return (
         <article className="bg-gray-800 border border-gray-700 rounded-lg p-4 sm:p-5 shadow-sm">
 
-            <div className="flex justify-end mb-2">
+            {/* <div className="flex justify-end mb-2">
                 <button
                     onClick={() => onDelete(note.id)}
                     className="text-red-400 hover:text-red-500 text-xs font-medium"
                 >
                     Delete
                 </button>
-            </div>
+            </div> */}
 
             {/* Author */}
             <span className="inline-flex items-center px-2 py-0.5 mb-3 rounded-full text-l font-medium bg-gray-700 text-gray-200">
